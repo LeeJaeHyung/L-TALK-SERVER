@@ -70,7 +70,7 @@ public class Main extends Application {
                     Socket socket = serverSocket.accept();
                     String text = "[연결수락: "+socket.getRemoteSocketAddress()+": "+Thread.currentThread().getName()+"]";
                     System.out.println(text);
-                    User user = new User(socket.getInetAddress().getHostAddress(), socket.getInetAddress().getHostAddress(), UserRole.UNKNOWN_USER);
+                    User user = new User(socket.getInetAddress().getHostAddress(), socket.getInetAddress().getHostAddress(), UserRole.UNKNOWN_USER, null);
                     ServerSocketController.getSocketList().put(user.getIp(),new ServerSocketController(user, socket));
                     // 클라이언트와의 소켓 연결 처리
                 } catch (IOException e) {
