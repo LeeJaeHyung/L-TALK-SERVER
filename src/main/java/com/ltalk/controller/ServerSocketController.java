@@ -2,25 +2,18 @@ package com.ltalk.controller;
 
 import com.google.gson.Gson;
 import com.ltalk.Main;
-import com.ltalk.entity.Data;
-import com.ltalk.entity.Member;
-import com.ltalk.entity.User;
+import com.ltalk.entity.*;
+import com.ltalk.repository.MemberRepository;
 import com.ltalk.request.ChatRequest;
 import com.ltalk.request.LoginRequest;
 import com.ltalk.request.SignupRequest;
-import lombok.Getter;
+import com.ltalk.response.SignupResponse;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,12 +22,15 @@ public class ServerSocketController {
     private static final Map<String, ServerSocketController> SOCKET_LIST = new ConcurrentHashMap<>();
     private User user;
     private String ip;
+    private OutputStream outputStream;
     private Socket socket;
     private Gson gson = new Gson();
+    private final MemberRepository memberRepository = new MemberRepository();
 
     public  ServerSocketController(User user, Socket socket) throws IOException {
         this.user = user;
         this.socket = socket;
+        this.outputStream = socket.getOutputStream();
         start();
     }
 
@@ -97,21 +93,37 @@ public class ServerSocketController {
     private void sendMsg(String msg){
 
     }
-    private void signup(SignupRequest request) throws NoSuchAlgorithmException {
+    private void signup(SignupRequest request) throws NoSuchAlgorithmException, IOException {
         Member member = new Member(request);
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ltalk");
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
-        try {
-            em.persist(member);
-            tx.commit();
-        } catch (Exception e) {
-            tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
+        if(duplication(member)){
+            if(memberRepository.save(member)){
+                sendResponse(new ServerResponse(ProtocolType.SIGNUP,true, new SignupResponse("회원가입 성공")));
+            }else{
+                sendResponse(new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("회원가입 실패")));
+            }
         }
-        emf.close();
+    }
+
+    private boolean duplication(Member member) throws IOException {
+        boolean nameCheck = memberRepository.usernameExists(member.getUsername());
+        System.out.println("아이디 존재? "+nameCheck);
+        boolean emailCheck = false;
+        if(nameCheck==false){
+            emailCheck = memberRepository.emailExists(member.getEmail());
+            System.out.println("이메일 존재? "+emailCheck);
+            if(emailCheck){
+                sendResponse(new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("중복된 이메일이 이미 존재합니다.")));
+            }
+        }else{
+            sendResponse(new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("중복된 아이디가 이미 존재합니다.")));
+        }
+        return !nameCheck && !emailCheck;
+    }
+
+    private void sendResponse(ServerResponse response) throws IOException {
+        String dataString = gson.toJson(response);
+        byte[] buffer = dataString.getBytes();
+        outputStream.write(buffer);
+        outputStream.flush();
     }
 }
