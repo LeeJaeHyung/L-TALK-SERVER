@@ -14,5 +14,10 @@ public class User {
     private UserRole userRoleEnum;
     private Member member;
 
+    public void login(Member member){
+        username = member.getUsername();
+        userRoleEnum = UserRole.USER;
+        this.member = member;
+    }
 
 }

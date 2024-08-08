@@ -1,6 +1,7 @@
 package com.ltalk.entity;
 
 import com.ltalk.config.PasswordEncoder;
+import com.ltalk.request.LoginRequest;
 import com.ltalk.request.SignupRequest;
 import javax.persistence.*;
 import lombok.Getter;
@@ -32,6 +33,11 @@ public class Member {
         this.username = request.getUsername();
         this.password = new PasswordEncoder().encode(request.getPassword());
         this.email = request.getEmail();
+    }
+
+    public Member(LoginRequest request) throws NoSuchAlgorithmException {
+        this.username = request.getUsername();
+        this.password = new PasswordEncoder().encode(request.getPassword());
     }
 
 }

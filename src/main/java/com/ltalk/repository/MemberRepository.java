@@ -63,5 +63,18 @@ public class MemberRepository {
         }
     }
 
-
+    public Member findByUserName(String username) {
+        EntityManager em = JpaUtil.getEntityManager();
+        Member member = null;
+        try{
+            TypedQuery<Member> query = em.createQuery("SELECT m FROM Member m WHERE m.username = :username", Member.class);
+            query.setParameter("username", username);
+            member = query.getSingleResult();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            JpaUtil.closeEntityManager(em);
+        }
+        return member;
+    }
 }
