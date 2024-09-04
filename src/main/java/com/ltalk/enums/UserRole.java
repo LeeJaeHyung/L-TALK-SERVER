@@ -1,4 +1,4 @@
-package com.ltalk.entity;
+package com.ltalk.enums;
 
 public enum UserRole {
 

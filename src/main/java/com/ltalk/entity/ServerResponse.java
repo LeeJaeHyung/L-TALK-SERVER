@@ -1,5 +1,6 @@
 package com.ltalk.entity;
 
+import com.ltalk.enums.ProtocolType;
 import com.ltalk.response.ChatResponse;
 import com.ltalk.response.LoginResponse;
 import com.ltalk.response.SignupResponse;
@@ -28,4 +29,5 @@ public class ServerResponse {
         this.success = success;
         this.signupResponse = signupResponse;
     }
+
 }

@@ -1,14 +1,18 @@
 package com.ltalk.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ltalk.Main;
-import com.ltalk.entity.*;
-import com.ltalk.repository.MemberRepository;
+import com.ltalk.entity.Data;
+import com.ltalk.entity.Member;
+import com.ltalk.entity.ServerResponse;
+import com.ltalk.entity.User;
 import com.ltalk.request.ChatRequest;
 import com.ltalk.request.LoginRequest;
 import com.ltalk.request.SignupRequest;
-import com.ltalk.response.SignupResponse;
+import com.ltalk.service.FriendService;
 import com.ltalk.service.MemberService;
+import com.ltalk.util.LocalDateTimeAdapter;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -16,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,13 +32,19 @@ public class ServerSocketController {
     private String ip;
     private OutputStream outputStream;
     private Socket socket;
-    private Gson gson = new Gson();
+    private Gson gson;
+    @Getter
     private final MemberService memberService = new MemberService(this);
+    @Getter
+    private final FriendService friendService = new FriendService(this);
 
     public  ServerSocketController(User user, Socket socket) throws IOException {
         this.user = user;
         this.socket = socket;
         this.outputStream = socket.getOutputStream();
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .create();
         start();
     }
 
@@ -73,10 +84,10 @@ public class ServerSocketController {
                             socket.getOutputStream().close();
                             socket.close();
                             System.out.println(user.getUsername()+"님의 소켓이 닫힘");
-                            break;
                         } catch (IOException ex) {
                             throw new RuntimeException(ex);
                         }
+                        break;
                     }
                 }
             }
@@ -107,7 +118,9 @@ public class ServerSocketController {
         byte[] buffer = dataString.getBytes();
         outputStream.write(buffer);
         outputStream.flush();
+        System.out.println(socket.getInetAddress().getHostAddress());
         System.out.println("Response 전송 완료!");
     }
+
 
 }

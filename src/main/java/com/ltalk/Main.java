@@ -3,7 +3,7 @@ package com.ltalk;
 import com.ltalk.controller.MainController;
 import com.ltalk.controller.ServerSocketController;
 import com.ltalk.entity.User;
-import com.ltalk.entity.UserRole;
+import com.ltalk.enums.UserRole;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -72,6 +72,7 @@ public class Main extends Application {
                     System.out.println(text);
                     User user = new User(socket.getInetAddress().getHostAddress(), socket.getInetAddress().getHostAddress(), UserRole.UNKNOWN_USER, null);
                     ServerSocketController.getSocketList().put(user.getIp(),new ServerSocketController(user, socket));
+                    System.out.println(user.getIp()+"님이 서버에 접속하셨습니다.");
                     // 클라이언트와의 소켓 연결 처리
                 } catch (IOException e) {
                     if (serverSocket.isClosed()) {

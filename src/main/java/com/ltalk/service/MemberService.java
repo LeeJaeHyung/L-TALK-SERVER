@@ -1,16 +1,18 @@
 package com.ltalk.service;
 
 import com.ltalk.controller.ServerSocketController;
+import com.ltalk.entity.Friend;
 import com.ltalk.entity.Member;
-import com.ltalk.entity.ProtocolType;
 import com.ltalk.entity.ServerResponse;
 import com.ltalk.entity.User;
+import com.ltalk.enums.ProtocolType;
 import com.ltalk.repository.MemberRepository;
 import com.ltalk.response.LoginResponse;
 import com.ltalk.response.SignupResponse;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 public class MemberService {
     MemberRepository memberRepository;
@@ -57,7 +59,8 @@ public class MemberService {
                 System.out.println("비밀번호 일치");
                 User user = socketController.getUser();
                 user.login(targetMember);
-                socketController.sendResponse(new ServerResponse(ProtocolType.LOGIN, true, new LoginResponse("로그인 성공")));
+                List<Friend> friendList = socketController.getFriendService().getFriendList(member);
+                socketController.sendResponse(new ServerResponse(ProtocolType.LOGIN, true, new LoginResponse(member, friendList,"로그인 성공")));
                 System.out.println("로그인 성공 전송");
             }else{
                 System.out.println("비밀 번호 불일치");
@@ -68,4 +71,5 @@ public class MemberService {
             socketController.sendResponse(new ServerResponse(ProtocolType.LOGIN, false, new LoginResponse("아이디를 확인해 주세요")));
         }
     }
+
 }
