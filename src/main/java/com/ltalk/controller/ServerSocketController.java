@@ -10,6 +10,7 @@ import com.ltalk.entity.User;
 import com.ltalk.request.ChatRequest;
 import com.ltalk.request.LoginRequest;
 import com.ltalk.request.SignupRequest;
+import com.ltalk.service.ChatService;
 import com.ltalk.service.FriendService;
 import com.ltalk.service.MemberService;
 import com.ltalk.util.LocalDateTimeAdapter;
@@ -30,6 +31,7 @@ public class ServerSocketController {
     @Getter
     private User user;
     private String ip;
+    @Getter
     private OutputStream outputStream;
     private Socket socket;
     private Gson gson;
@@ -37,7 +39,8 @@ public class ServerSocketController {
     private final MemberService memberService = new MemberService(this);
     @Getter
     private final FriendService friendService = new FriendService(this);
-
+    @Getter
+    private final ChatService chatService = new ChatService(this);
     public  ServerSocketController(User user, Socket socket) throws IOException {
         this.user = user;
         this.socket = socket;
@@ -73,7 +76,7 @@ public class ServerSocketController {
                             Data data = gson.fromJson(dataString, Data.class);
                             switch (data.getProtocolType()) {
                                 case CHAT -> chat(data.getChatRequest());
-                                case LOGIN -> login(data.getLoginRequest());
+                                case LOGIN -> login(data.getLoginRequest(),socket.getLocalAddress().getHostAddress());
                                 case SIGNUP -> signup(data.getSignupRequest());
                             }
                         }
@@ -95,12 +98,12 @@ public class ServerSocketController {
         Main.threadPool.submit(runnable);
     }
 
-    private void chat(ChatRequest request){
-
+    private void chat(ChatRequest request) throws IOException {
+        chatService.send(request);
     }
-    private void login(LoginRequest request) throws NoSuchAlgorithmException, IOException {
+    private void login(LoginRequest request, String ip) throws NoSuchAlgorithmException, IOException {
         Member member = new Member(request);
-        memberService.login(member);
+        memberService.login(member,ip);
     }
     private void logout(){
 

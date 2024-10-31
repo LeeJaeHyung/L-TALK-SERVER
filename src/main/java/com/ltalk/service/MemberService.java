@@ -50,7 +50,8 @@ public class MemberService {
     }
 
 
-    public void login(Member member) throws IOException {
+    public void login(Member member, String ip) throws IOException {
+        System.out.println("로그인 요청 IP: "+ip);
         if(memberRepository.usernameExists(member.getUsername())){
             System.out.println("멤버 존재");
             Member targetMember = memberRepository.findByUserName(member.getUsername());
@@ -62,6 +63,9 @@ public class MemberService {
                 List<Friend> friendList = socketController.getFriendService().getFriendList(member);
                 socketController.sendResponse(new ServerResponse(ProtocolType.LOGIN, true, new LoginResponse(member, friendList,"로그인 성공")));
                 System.out.println("로그인 성공 전송");
+                ServerSocketController ssc = ServerSocketController.getSocketList().get(ip);
+                ServerSocketController.getSocketList().remove(ip);
+                ServerSocketController.getSocketList().put(member.getUsername(),ssc);
             }else{
                 System.out.println("비밀 번호 불일치");
                 socketController.sendResponse(new ServerResponse(ProtocolType.LOGIN, false, new LoginResponse("비밀번호를 확인해 주세요")));
