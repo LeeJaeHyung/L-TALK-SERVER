@@ -27,6 +27,19 @@ public class MemberRepository {
         }
         return true;
     }
+    public void update(Member member) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.merge(member);  // persist 대신 merge 사용
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            em.getTransaction().rollback();
+        } finally {
+            JpaUtil.closeEntityManager(em);
+        }
+    }
 
     public List<Member> findAll() {
         EntityManager em = JpaUtil.getEntityManager();

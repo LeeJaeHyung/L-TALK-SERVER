@@ -12,4 +12,5 @@ public class Data {
     ChatRequest chatRequest;
     LoginRequest loginRequest;
     SignupRequest signupRequest;
+    String username;
 }

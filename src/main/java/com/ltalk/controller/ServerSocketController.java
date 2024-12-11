@@ -70,6 +70,13 @@ public class ServerSocketController {
                         int bufferLength = is.read(buffer);
                         if(bufferLength == -1) {
                             System.out.println("["+Thread.currentThread().getName()+"] <= data read Error");
+                            SOCKET_LIST.remove(getMapKey());
+                            System.out.println("===============User List================");
+                            for(String key : SOCKET_LIST.keySet()){
+                                System.out.println(key);
+                            }
+                            System.out.println("======================================");
+                            break;
                         }else{
                             String dataString = new String(buffer, 0, bufferLength, "UTF-8");
                             System.out.println("Data => " + dataString);
@@ -123,6 +130,14 @@ public class ServerSocketController {
         outputStream.flush();
         System.out.println(socket.getInetAddress().getHostAddress());
         System.out.println("Response 전송 완료!");
+    }
+
+    public String getMapKey(){
+        if(user==null){
+            return ip;
+        }else{
+            return user.getUsername();
+        }
     }
 
 

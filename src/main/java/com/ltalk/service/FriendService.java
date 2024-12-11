@@ -18,9 +18,9 @@ public class FriendService {
 
     public List<Friend> getFriendList(Member member) {
 //        friendRepository.friendRequest(member, "b");
-        List<Friend> friendList = friendRepository.getFriendList(member.getUsername());
+        List<Friend> friendList = friendRepository.getFriendList(member);
         for (Friend friend : friendList) {
-            System.out.println(friend.getFriend_name());
+            System.out.println(friend.getFriend());
         }
 
         return friendList;
