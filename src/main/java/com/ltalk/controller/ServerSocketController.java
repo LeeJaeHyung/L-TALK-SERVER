@@ -3,10 +3,7 @@ package com.ltalk.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ltalk.Main;
-import com.ltalk.entity.Data;
-import com.ltalk.entity.Member;
-import com.ltalk.entity.ServerResponse;
-import com.ltalk.entity.User;
+import com.ltalk.entity.*;
 import com.ltalk.request.ChatRequest;
 import com.ltalk.request.LoginRequest;
 import com.ltalk.request.SignupRequest;
@@ -23,6 +20,7 @@ import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerSocketController {
@@ -70,6 +68,13 @@ public class ServerSocketController {
                         int bufferLength = is.read(buffer);
                         if(bufferLength == -1) {
                             System.out.println("["+Thread.currentThread().getName()+"] <= data read Error");
+                            SOCKET_LIST.remove(getMapKey());
+                            System.out.println("===============User List================");
+                            for(String key : SOCKET_LIST.keySet()){
+                                System.out.println(key);
+                            }
+                            System.out.println("======================================");
+                            break;
                         }else{
                             String dataString = new String(buffer, 0, bufferLength, "UTF-8");
                             System.out.println("Data => " + dataString);
@@ -103,7 +108,11 @@ public class ServerSocketController {
     }
     private void login(LoginRequest request, String ip) throws NoSuchAlgorithmException, IOException {
         Member member = new Member(request);
-        memberService.login(member,ip);
+        try{
+            memberService.login(member,ip);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
     private void logout(){
 
@@ -117,12 +126,27 @@ public class ServerSocketController {
     }
 
     public void sendResponse(ServerResponse response) throws IOException {
+        Set<Friend> friendSet = response.getLoginResponse().getMember().getFriends();
+        System.out.println("json before");
+        for(final Friend friend : friendSet){
+            System.out.println(friend.getMember().getUsername());
+        }
         String dataString = gson.toJson(response);
+        System.out.println("json parse !!");
+        System.out.println(dataString);
         byte[] buffer = dataString.getBytes();
         outputStream.write(buffer);
         outputStream.flush();
         System.out.println(socket.getInetAddress().getHostAddress());
         System.out.println("Response 전송 완료!");
+    }
+
+    public String getMapKey(){
+        if(user==null){
+            return ip;
+        }else{
+            return user.getUsername();
+        }
     }
 
 

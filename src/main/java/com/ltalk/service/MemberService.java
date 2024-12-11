@@ -13,6 +13,7 @@ import com.ltalk.response.SignupResponse;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Set;
 
 public class MemberService {
     MemberRepository memberRepository;
@@ -59,9 +60,16 @@ public class MemberService {
             if(targetMember.getPassword().equals(member.getPassword())){
                 System.out.println("비밀번호 일치");
                 User user = socketController.getUser();
+                Set<Friend> freindSet = targetMember.getFriends();
+                for(Friend friend : freindSet){
+                    System.out.println(friend.getFriend().getUsername());
+                }
                 user.login(targetMember);
-                List<Friend> friendList = socketController.getFriendService().getFriendList(member);
-                socketController.sendResponse(new ServerResponse(ProtocolType.LOGIN, true, new LoginResponse(member, friendList,"로그인 성공")));
+                try{
+                    socketController.sendResponse(new ServerResponse(ProtocolType.LOGIN, true, new LoginResponse(member, "로그인 성공")));
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
                 System.out.println("로그인 성공 전송");
                 ServerSocketController ssc = ServerSocketController.getSocketList().get(ip);
                 ServerSocketController.getSocketList().remove(ip);

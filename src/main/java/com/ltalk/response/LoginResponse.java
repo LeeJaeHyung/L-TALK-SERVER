@@ -9,15 +9,13 @@ import java.util.List;
 @Getter
 public class LoginResponse {
     private String msg;
-    private List<Friend> friendList;
     private Member member;
 
     public LoginResponse(String msg){
         this.msg = msg;
     }
-    public LoginResponse(Member member, List<Friend> friendList, String msg) {
+    public LoginResponse(Member member, String msg) {
         this.member = member;
-        this.friendList = friendList;
         this.msg = msg;
     }
 }
