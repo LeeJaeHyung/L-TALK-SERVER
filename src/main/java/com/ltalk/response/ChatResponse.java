@@ -12,7 +12,7 @@ public class ChatResponse {
     private String message;
     private LocalDateTime sendDate;
     public ChatResponse(ChatRequest chatRequest) {
-        this.receiver = chatRequest.getReceiver();
+        this.receiver = null;//chatRequest.getReceiver();
         this.sender = chatRequest.getSender();
         this.message = chatRequest.getMessage();
         this.sendDate = chatRequest.getSendDate();

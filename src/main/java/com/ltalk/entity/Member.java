@@ -3,6 +3,7 @@ package com.ltalk.entity;
 import com.ltalk.config.PasswordEncoder;
 import com.ltalk.request.LoginRequest;
 import com.ltalk.request.SignupRequest;
+
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

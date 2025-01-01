@@ -12,8 +12,8 @@ public class ChatRepository {
     public boolean save(Chat chat) {
         EntityManager em = JpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
-        System.out.println(chat.getSend_date()==null);
-        System.out.println(chat.getSend_date());
+        System.out.println(chat.getCreatedAt()==null);
+        System.out.println(chat.getCreatedAt());
         try {
             transaction.begin();
             em.persist(chat);

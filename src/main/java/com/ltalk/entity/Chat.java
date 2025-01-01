@@ -4,37 +4,45 @@ import com.ltalk.request.ChatRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "chats")
-@Setter
 @Getter
+@Setter
+@Entity
 @NoArgsConstructor
+@Table(name = "chats")
 public class Chat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long chatId;
 
-    @Column(nullable = false)
-    private String receiver;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_room_id", nullable = false)
+    private ChatRoom chatRoom;
 
-    @Column(nullable = false)
-    private String sender;
-
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
-    @Column(name = "send_date", nullable = true)
-    private LocalDateTime send_date;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    public Chat(ChatRequest chatRequest) {
-        this.receiver = chatRequest.getReceiver();
-        this.sender = chatRequest.getSender();
-        this.message = chatRequest.getMessage();
-        this.send_date = chatRequest.getSendDate();
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    public Chat(ChatRequest request) {
+
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

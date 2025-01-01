@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class ChatRequest {
-    private String receiver;
+    private String chatRoomName;
     private String sender;
     private String message;
     private LocalDateTime sendDate;

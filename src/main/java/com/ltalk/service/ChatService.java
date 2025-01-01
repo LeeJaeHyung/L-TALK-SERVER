@@ -19,7 +19,7 @@ public class ChatService {
     }
 
     public void send(ChatRequest request) throws IOException {
-        String receiver = request.getReceiver();
+        String receiver = null;//request.getReceiver();
         ServerSocketController ssc = ServerSocketController.getSocketList().get(receiver);
         if(ssc != null){// 수신자가 접속중
             ssc.sendResponse(new ServerResponse(ProtocolType.CHAT, true, new ChatResponse(request)));

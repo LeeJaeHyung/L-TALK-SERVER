@@ -11,6 +11,6 @@ public class ChatRoomDTO {
     Long roomId;
 
     public ChatRoomDTO(ChatRoomMember chatRoomMember){
-        chatRoomMember.getMember();
+//        chatRoomMember.getMemberId();
     }
 }
