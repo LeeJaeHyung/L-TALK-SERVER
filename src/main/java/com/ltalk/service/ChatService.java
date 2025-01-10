@@ -11,10 +11,8 @@ import com.ltalk.response.ChatResponse;
 import java.io.IOException;
 
 public class ChatService {
-    ServerSocketController socketController;
     ChatRepository chatRepository;
-    public ChatService(ServerSocketController socketController){
-        this.socketController = socketController;
+    public ChatService(){
         chatRepository = new ChatRepository();
     }
 

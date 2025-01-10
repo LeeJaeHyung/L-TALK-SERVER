@@ -3,13 +3,11 @@ package com.ltalk.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ltalk.Main;
-import com.ltalk.entity.*;
-import com.ltalk.request.ChatRequest;
-import com.ltalk.request.LoginRequest;
-import com.ltalk.request.SignupRequest;
-import com.ltalk.service.ChatService;
-import com.ltalk.service.FriendService;
-import com.ltalk.service.MemberService;
+import com.ltalk.entity.Data;
+import com.ltalk.entity.Friend;
+import com.ltalk.entity.ServerResponse;
+import com.ltalk.entity.User;
+import com.ltalk.service.ServerSocketService;
 import com.ltalk.util.LocalDateTimeAdapter;
 import lombok.Getter;
 
@@ -17,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
@@ -33,16 +30,13 @@ public class ServerSocketController {
     private OutputStream outputStream;
     private Socket socket;
     private Gson gson;
-    @Getter
-    private final MemberService memberService = new MemberService(this);
-    @Getter
-    private final FriendService friendService = new FriendService(this);
-    @Getter
-    private final ChatService chatService = new ChatService(this);
+    private ServerSocketService serverSocketService;
+
     public  ServerSocketController(User user, Socket socket) throws IOException {
         this.user = user;
         this.socket = socket;
         this.outputStream = socket.getOutputStream();
+        serverSocketService = new ServerSocketService();
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .create();
@@ -80,9 +74,9 @@ public class ServerSocketController {
                             System.out.println("Data => " + dataString);
                             Data data = gson.fromJson(dataString, Data.class);
                             switch (data.getProtocolType()) {
-                                case CHAT -> chat(data.getChatRequest());
-                                case LOGIN -> login(data.getLoginRequest(),socket.getLocalAddress().getHostAddress());
-                                case SIGNUP -> signup(data.getSignupRequest());
+                                case CHAT -> serverSocketService.chat(data.getChatRequest());
+                                case LOGIN -> serverSocketService.login(data.getLoginRequest(),socket.getLocalAddress().getHostAddress());
+                                case SIGNUP -> serverSocketService.signup(data.getSignupRequest());
                             }
                         }
                     }catch (Exception e){
@@ -101,28 +95,6 @@ public class ServerSocketController {
             }
         };
         Main.threadPool.submit(runnable);
-    }
-
-    private void chat(ChatRequest request) throws IOException {
-        chatService.send(request);
-    }
-    private void login(LoginRequest request, String ip) throws NoSuchAlgorithmException, IOException {
-        Member member = new Member(request);
-        try{
-            memberService.login(member,ip);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-    private void logout(){
-
-    }
-    private void sendMsg(String msg){
-
-    }
-    private void signup(SignupRequest request) throws NoSuchAlgorithmException, IOException {
-        Member member = new Member(request);
-        memberService.signup(member);
     }
 
     public void sendResponse(ServerResponse response) throws IOException {

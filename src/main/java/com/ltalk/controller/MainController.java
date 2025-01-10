@@ -29,11 +29,6 @@ public class MainController implements Initializable{
             try {
                 Main.startServer();
                 button.setText("Stop");
-                ChatRepository chatRepository = new ChatRepository();
-                Chat chat = new Chat();
-                chat.setChatRoom(new ChatRoom());
-                chat.setMessage("ss");
-                chatRepository.save(chat);
                 textArea.appendText("[Server]-> Start\n");
             }catch(Exception e) {
                 e.printStackTrace();

@@ -17,24 +17,25 @@ import java.util.Set;
 
 public class MemberService {
     MemberRepository memberRepository;
-    ServerSocketController socketController;
 
-    public MemberService(ServerSocketController socketController) {
+    public MemberService() {
         memberRepository = new MemberRepository();
-        this.socketController = socketController;
     }
 
-    public void signup(Member member) throws NoSuchAlgorithmException, IOException {
-        if(duplication(member)){
+    public ServerResponse signup(Member member) throws NoSuchAlgorithmException, IOException {
+        ServerResponse serverResponse = null;
+        serverResponse = duplication(member);
+        if(serverResponse == null){
             if(memberRepository.save(member)){
-                socketController.sendResponse(new ServerResponse(ProtocolType.SIGNUP,true, new SignupResponse("회원가입 성공")));
+                return new ServerResponse(ProtocolType.SIGNUP,true, new SignupResponse("회원가입 성공"));
             }else{
-                socketController.sendResponse(new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("회원가입 실패")));
+                return new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("회원가입 실패"));
             }
         }
+        return serverResponse;
     }
 
-    private boolean duplication(Member member) throws IOException {
+    private ServerResponse duplication(Member member) throws IOException {
         boolean nameCheck = memberRepository.usernameExists(member.getUsername());
         System.out.println("아이디 존재? "+nameCheck);
         boolean emailCheck = false;
@@ -42,16 +43,16 @@ public class MemberService {
             emailCheck = memberRepository.emailExists(member.getEmail());
             System.out.println("이메일 존재? "+emailCheck);
             if(emailCheck){
-                socketController.sendResponse(new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("중복된 이메일이 이미 존재합니다.")));
+                return new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("중복된 이메일이 이미 존재합니다."));
             }
         }else{
-            socketController.sendResponse(new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("중복된 아이디가 이미 존재합니다.")));
+            return new ServerResponse(ProtocolType.SIGNUP, false, new SignupResponse("중복된 아이디가 이미 존재합니다."));
         }
-        return !nameCheck && !emailCheck;
+        return null;
     }
 
 
-    public void login(Member member, String ip) throws IOException {
+    public ServerResponse login(Member member, String ip) throws IOException {
         System.out.println("로그인 요청 IP: "+ip);
         if(memberRepository.usernameExists(member.getUsername())){
             System.out.println("멤버 존재");
